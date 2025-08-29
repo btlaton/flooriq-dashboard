@@ -1,718 +1,336 @@
-<!DOCTYPE html>
+<!-- IQ Preview v0.1 | 2025-08-28 | Hero meter + carousel + list -->
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FloorIQ Dashboard - The Atlas Gym</title>
-    
-    <!-- Bootstrap CSS for responsive design -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Chart.js for usage charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Custom CSS -->
-    <style>
-        /* Summary Tab Styles (from your working Netlify index.html) */
-        .scheme-corporate-gray {
-            background-color: #f8f9fa;
-        }
-        .analytics-section {
-            margin-bottom: 2rem;
-        }
-        .analytics-section-header {
-            margin-bottom: 1rem;
-        }
-        .equipment-ranking {
-            min-height: auto;
-        }
-        .border-start {
-            border-left: 4px solid !important;
-        }
-        .bg-secondary {
-            background-color: #6c757d !important;
-        }
-        .bg-primary {
-            background-color: #0066cc !important;
-        }
-        .text-primary {
-            color: #0066cc !important;
-        }
-        .border-primary {
-            border-color: #0066cc !important;
-        }
-        .border-success {
-            border-color: #28a745 !important;
-        }
-        .border-danger {
-            border-color: #dc3545 !important;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FloorIQ • IQ Dashboard</title>
 
-        /* Equipment List Tab Styles (from your working equipment-list-clean) */
-        .equipment-item {
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            padding: 12px 16px;
-            background: white;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        .equipment-item:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border-color: #0066cc;
-        }
-        .equipment-name {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #212529;
-            margin-bottom: 2px;
-        }
-        .equipment-category {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-bottom: 6px;
-        }
-        .equipment-minutes {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #0066cc;
-        }
-        .trend-indicator {
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 8px;
-        }
-        .trend-up {
-            background: rgba(40, 167, 69, 0.1);
-            color: #28a745;
-        }
-        .trend-down {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
-        }
-        .trend-stable {
-            background: rgba(108, 117, 125, 0.1);
-            color: #6c757d;
-        }
-        .peak-hours {
-            font-size: 0.85rem;
-            color: #6c757d;
-        }
-    </style>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23007bff%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2240%22 fill=%22white%22 text-anchor=%22middle%22 dy=%22.3em%22>F</text></svg>">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+  <link rel="icon" href="/static/img/logo_hex_f.svg" type="image/svg+xml" />
+
+  <style>
+    :root { --tblr-primary: #764ba2; --tblr-link-color: #764ba2; }
+    .week-pill { background: #ffffff; color: var(--tblr-primary); border: 1px solid rgba(0,0,0,0.06); border-radius: 9999px; padding: 6px 12px; font-weight: 600; }
+    .score-pill { background: #ffffff; color: var(--tblr-primary); border: 1px solid rgba(0,0,0,0.06); border-radius: 9999px; padding: 6px 12px; font-weight: 700; }
+    .score-caption { color: #ffffff; opacity: .9; font-size: 0.75rem; margin-top: 4px; text-align: right; }
+    .score-amber { color: #b45309 !important; border-color: rgba(245, 158, 11, 0.35) !important; }
+    .score-caption.score-amber { color: #f59e0b !important; opacity: 1; }
+
+    .card { border-radius: 8px; }
+    .equipment-item { border: 1px solid #dee2e6; border-radius: 6px; margin-bottom: 8px; padding: 8px 10px; background: white; }
+    .equipment-name { font-size: 0.98rem; font-weight: 600; color: #212529; white-space: nowrap; }
+    .equipment-minutes { font-size: 1.2rem; font-weight: 700; color: var(--tblr-primary); }
+    .trend-indicator { font-size: 0.9rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+    .trend-up { background: #28a745; color: #fff; }
+    .trend-down { background: #dc3545; color: #fff; }
+    .trend-stable { background: #6c757d; color: #fff; }
+    .section-card { border: 1px solid var(--tblr-primary); }
+    .band-amber { background: #f59e0b; color: #fff; }
+    .card-right { min-width: 140px; }
+    @media (min-width: 576px) { .card-right { min-width: 180px; } }
+    @media (max-width: 420px) { .equipment-minutes { font-size: 1.05rem; } }
+    /* FloorIQ meter */
+    .fiq-hero { display: flex; flex-direction: column; gap: 8px; }
+    .fiq-header { display: flex; justify-content: space-between; align-items: flex-end; }
+    .fiq-title { font-weight: 600; }
+    .fiq-value { font-size: 1.8rem; font-weight: 700; color: var(--tblr-primary); }
+    .fiq-meter { position: relative; display: flex; height: 18px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; }
+    .fiq-band { height: 100%; }
+    .fiq-poor { background: #ef4444; }
+    .fiq-below { background: #f59e0b; }
+    .fiq-average { background: #e9d5ff; }
+    .fiq-above { background: #86efac; }
+    .fiq-exceptional { background: #22c55e; }
+    #fiq-pointer { position: absolute; top: -6px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid #111827; }
+    .fiq-legend { display: flex; justify-content: space-between; font-size: 0.75rem; color: #6b7280; }
+    .fiq-band-label { text-align: right; font-size: 0.85rem; }
+    @media (max-width: 420px) {
+      .fiq-value { font-size: 1.5rem; }
+      .fiq-meter { height: 16px; }
+    }
+    /* Smooth scroll offset so content doesn't slam under navbar */
+    #tab-equipment { scroll-margin-top: 80px; }
+  </style>
 </head>
-<body class="scheme-corporate-gray">
-    <!-- Navigation Header -->
-    <nav class="navbar navbar-dark bg-primary mb-4">
-        <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1">
-                FloorIQ Dashboard - The Atlas Gym
-            </span>
-            <div class="navbar-text">
-                <small class="text-light">
-                    Report for week ending: <span>Aug 18, 2025</span>
-                </small>
-            </div>
-        </div>
-    </nav>
+<body>
+  <!-- Header with week pill -->
+  <nav class="navbar" style="background: var(--tblr-primary); box-shadow: 0 1px 2px rgba(0,0,0,0.12)">
+    <div class="container-xl d-flex align-items-center justify-content-between text-white">
+      <div class="d-flex align-items-center">
+        <i class="ti ti-hexagon-letter-f me-2" style="font-size: 1.2rem;"></i>
+        <strong>FloorIQ</strong>
+        <span class="ms-2" style="opacity: 0.9;">The Atlas Gym</span>
+      </div>
+      <div class="text-end"><span id="week-label" class="week-pill">{{ week_label }}</span></div>
+    </div>
+  </nav>
 
-    <!-- Tab Navigation -->
-    <div class="container-fluid">
-        <ul class="nav nav-tabs mb-4" id="dashboardTabs">
-            <li class="nav-item">
-                <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary-pane" type="button">
-                    <i class="fas fa-chart-line me-2"></i>Summary
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" id="equipment-tab" data-bs-toggle="tab" data-bs-target="#equipment-pane" type="button">
-                    <i class="fas fa-list me-2"></i>Equipment List
-                </button>
-            </li>
-        </ul>
-
-        <!-- Tab Content -->
-        <div class="tab-content" id="dashboardTabsContent">
-            
-            <!-- SUMMARY TAB (Your exact Netlify index.html content) -->
-            <div class="tab-pane fade show active" id="summary-pane" role="tabpanel">
-                <!-- Main Dashboard Content -->
-                <div class="dashboard-content">
-                    <!-- AVERAGE EQUIPMENT USAGE SECTION -->
-                    <div class="analytics-section mb-5">
-                        <div class="row mb-4">
-                            <div class="col-md-12">
-                                <div class="card border-start border-4 border-primary">
-                                    <div class="card-body text-center">
-                                        <h2 class="text-primary mb-1">
-                                            <span id="avg-minutes">{{ stats.avg_minutes_per_machine }}</span>
-                                            <small class="text-muted fs-6">minutes</small>
-                                        </h2>
-                                        <h5 class="text-secondary mb-2">Average Per Machine</h5>
-                                        <p class="text-muted mb-1">
-                                            <span class="badge bg-success">+8% from last week</span>
-                                        </p>
-                                        <small class="text-muted">Weekly usage per piece of equipment</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- DAILY BREAKDOWN SECTION -->
-                    <div class="analytics-section mb-5">
-                        <div class="analytics-section-header mb-3">
-                            <h4 class="text-primary mb-1">
-                                <i class="fas fa-calendar-week me-2"></i>
-                                Daily Breakdown
-                            </h4>
-                            <p class="text-muted mb-0">Visitor distribution (Monday - Sunday)</p>
-                        </div>
-                        
-                        <!-- Daily Breakdown Chart Card -->
-                        <div class="card border-start border-4 border-primary">
-                            <div class="card-body">
-                                <!-- Simple Vertical Bar Chart -->
-                                <div class="row g-1 mb-3">
-                                    <div class="col text-center">
-                                        <div class="d-flex flex-column align-items-center" style="height: 140px;">
-                                            <div class="flex-grow-1 d-flex align-items-end">
-                                                <div class="bg-secondary rounded-top" style="width: 32px; height: 52%; display: flex; align-items: end; justify-content: center; padding-bottom: 4px;">
-                                                    <small class="text-white fw-bold">35</small>
-                                                </div>
-                                            </div>
-                                            <small class="text-muted mt-2">Mon</small>
-                                        </div>
-                                    </div>
-                                    <div class="col text-center">
-                                        <div class="d-flex flex-column align-items-center" style="height: 140px;">
-                                            <div class="flex-grow-1 d-flex align-items-end">
-                                                <div class="bg-secondary rounded-top" style="width: 32px; height: 42%; display: flex; align-items: end; justify-content: center; padding-bottom: 4px;">
-                                                    <small class="text-white fw-bold">28</small>
-                                                </div>
-                                            </div>
-                                            <small class="text-muted mt-2">Tue</small>
-                                        </div>
-                                    </div>
-                                    <div class="col text-center">
-                                        <div class="d-flex flex-column align-items-center" style="height: 140px;">
-                                            <div class="flex-grow-1 d-flex align-items-end">
-                                                <div class="bg-secondary rounded-top" style="width: 32px; height: 63%; display: flex; align-items: end; justify-content: center; padding-bottom: 4px;">
-                                                    <small class="text-white fw-bold">42</small>
-                                                </div>
-                                            </div>
-                                            <small class="text-muted mt-2">Wed</small>
-                                        </div>
-                                    </div>
-                                    <div class="col text-center">
-                                        <div class="d-flex flex-column align-items-center" style="height: 140px;">
-                                            <div class="flex-grow-1 d-flex align-items-end">
-                                                <div class="bg-secondary rounded-top" style="width: 32px; height: 57%; display: flex; align-items: end; justify-content: center; padding-bottom: 4px;">
-                                                    <small class="text-white fw-bold">38</small>
-                                                </div>
-                                            </div>
-                                            <small class="text-muted mt-2">Thu</small>
-                                        </div>
-                                    </div>
-                                    <div class="col text-center">
-                                        <div class="d-flex flex-column align-items-center" style="height: 140px;">
-                                            <div class="flex-grow-1 d-flex align-items-end">
-                                                <div class="bg-primary rounded-top" style="width: 32px; height: 100%; display: flex; align-items: end; justify-content: center; padding-bottom: 4px;">
-                                                    <small class="text-white fw-bold">67</small>
-                                                </div>
-                                            </div>
-                                            <small class="text-primary fw-bold mt-2">Fri</small>
-                                        </div>
-                                    </div>
-                                    <div class="col text-center">
-                                        <div class="d-flex flex-column align-items-center" style="height: 140px;">
-                                            <div class="flex-grow-1 d-flex align-items-end">
-                                                <div class="bg-secondary rounded-top" style="width: 32px; height: 31%; display: flex; align-items: end; justify-content: center; padding-bottom: 4px;">
-                                                    <small class="text-white fw-bold">21</small>
-                                                </div>
-                                            </div>
-                                            <small class="text-muted mt-2">Sat</small>
-                                        </div>
-                                    </div>
-                                    <div class="col text-center">
-                                        <div class="d-flex flex-column align-items-center" style="height: 140px;">
-                                            <div class="flex-grow-1 d-flex align-items-end">
-                                                <div class="bg-secondary rounded-top" style="width: 32px; height: 18%; display: flex; align-items: end; justify-content: center; padding-bottom: 4px;">
-                                                    <small class="text-white fw-bold">12</small>
-                                                </div>
-                                            </div>
-                                            <small class="text-muted mt-2">Sun</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Week-over-week changes -->
-                                <div class="row g-1 text-center mb-3">
-                                    <div class="col"><small class="text-success">+8%</small></div>
-                                    <div class="col"><small class="text-muted">-2%</small></div>
-                                    <div class="col"><small class="text-success">+12%</small></div>
-                                    <div class="col"><small class="text-success">+5%</small></div>
-                                    <div class="col"><small class="text-success fw-bold">+15%</small></div>
-                                    <div class="col"><small class="text-danger">-12%</small></div>
-                                    <div class="col"><small class="text-danger">-18%</small></div>
-                                </div>
-                                <div class="text-center">
-                                    <small class="text-muted">% change vs. same day last week</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- EQUIPMENT UTILIZATION SECTION -->
-                    <div class="analytics-section mb-5">
-                        <div class="analytics-section-header mb-4">
-                            <h4 class="text-primary mb-1">
-                                <i class="fas fa-dumbbell me-2"></i>
-                                Equipment Performance
-                            </h4>
-                            <p class="text-muted mb-0">Top and bottom performers for replacement decisions</p>
-                        </div>
-                        
-                        <!-- Equipment Rankings -->
-                        <div class="row g-3">
-                            <!-- Replacement Candidates -->
-                            <div class="col-12 col-lg-6">
-                                <div class="card border-start border-4 border-danger">
-                                    <div class="card-body">
-                                        <h6 class="text-danger mb-2">
-                                            <i class="fas fa-arrow-down me-2"></i>
-                                            Replacement Candidates
-                                        </h6>
-                                        <div class="equipment-ranking" id="bottom-performers">
-                                            <!-- Will be populated by JavaScript -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Top Performers -->
-                            <div class="col-12 col-lg-6">
-                                <div class="card border-start border-4 border-success">
-                                    <div class="card-body">
-                                        <h6 class="text-success mb-2">
-                                            <i class="fas fa-arrow-up me-2"></i>
-                                            Top Performers
-                                        </h6>
-                                        <div class="equipment-ranking" id="top-performers">
-                                            <!-- Will be populated by JavaScript -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- VISITOR METRICS SECTION -->
-                    <div class="analytics-section mb-5">
-                        <div class="analytics-section-header mb-3">
-                            <h4 class="text-primary mb-1">
-                                <i class="fas fa-users me-2"></i>
-                                Weekly Summary
-                            </h4>
-                        </div>
-                        
-                        <!-- Visitor Metrics Cards -->
-                        <div class="row g-2 mb-3">
-                            <div class="col-4">
-                                <div class="card text-center">
-                                    <div class="card-body py-3">
-                                        <h5 class="text-primary mb-1">243</h5>
-                                        <small class="text-muted">Visitors Last Week</small>
-                                        <div class="text-success small mt-1">+12%</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="card text-center">
-                                    <div class="card-body py-3">
-                                        <h5 class="text-primary mb-1">6-8pm</h5>
-                                        <small class="text-muted">Peak Hours</small>
-                                        <div class="text-muted small mt-1">Mon/Wed/Fri</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="card text-center">
-                                    <div class="card-body py-3">
-                                        <h5 class="text-primary mb-1">67min</h5>
-                                        <small class="text-muted">Avg Duration</small>
-                                        <div class="text-muted small mt-1">per visit</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div> <!-- End Summary Dashboard Content -->
-            </div>
-
-            <!-- EQUIPMENT LIST TAB (Your exact equipment-list-clean content) -->
-            <div class="tab-pane fade" id="equipment-pane" role="tabpanel">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-12">
-                            <!-- Filters Section -->
-                            <div class="card mb-4">
-                                <div class="card-body py-3">
-                                    <div class="row g-3 align-items-center">
-                                        <!-- Sort Dropdown -->
-                                        <div class="col-md-4">
-                                            <label class="form-label small text-muted mb-1">SORT BY</label>
-                                            <select class="form-select form-select-sm" id="sort-select">
-                                                <option value="minutes-desc">Minutes Used ↓</option>
-                                                <option value="minutes-asc">Minutes Used ↑</option>
-                                                <option value="trend-desc">Biggest Increase</option>
-                                                <option value="trend-asc">Biggest Decrease</option>
-                                                <option value="name">Equipment Name</option>
-                                            </select>
-                                        </div>
-                                        
-                                        <!-- Category Pills -->
-                                        <div class="col-md-4">
-                                            <label class="form-label small text-muted mb-1">CATEGORY</label>
-                                            <div class="btn-group w-100" role="group" id="category-pills">
-                                                <input type="radio" class="btn-check" name="category" id="cat-all" value="all" checked>
-                                                <label class="btn btn-outline-primary btn-sm" for="cat-all">All</label>
-                                                
-                                                <input type="radio" class="btn-check" name="category" id="cat-cardio" value="Cardio">
-                                                <label class="btn btn-outline-primary btn-sm" for="cat-cardio">Cardio</label>
-                                                
-                                                <input type="radio" class="btn-check" name="category" id="cat-strength" value="Strength">
-                                                <label class="btn btn-outline-primary btn-sm" for="cat-strength">Strength</label>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Trend Filter Pills -->
-                                        <div class="col-md-4">
-                                            <label class="form-label small text-muted mb-1">TREND</label>
-                                            <div class="btn-group w-100" role="group" id="trend-pills">
-                                                <input type="radio" class="btn-check" name="trend" id="trend-all" value="all" checked>
-                                                <label class="btn btn-outline-primary btn-sm" for="trend-all">All</label>
-                                                
-                                                <input type="radio" class="btn-check" name="trend" id="trend-up" value="up">
-                                                <label class="btn btn-outline-primary btn-sm" for="trend-up">↑ Up</label>
-                                                
-                                                <input type="radio" class="btn-check" name="trend" id="trend-down" value="down">
-                                                <label class="btn btn-outline-primary btn-sm" for="trend-down">↓ Down</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Filter Summary -->
-                                    <div class="row mt-2">
-                                        <div class="col-12">
-                                            <small class="text-muted">
-                                                Showing <span id="filtered-count">—</span> of <span id="total-equipment">—</span> equipment items
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Equipment List -->
-                            <div class="card">
-                                <div class="card-body">
-                                    <div id="loading" class="text-center py-5">
-                                        <div class="spinner-border text-primary" role="status"></div>
-                                        <p class="mt-3">Loading equipment data...</p>
-                                    </div>
-                                    
-                                    <div id="equipment-container" style="display: none;">
-                                        <!-- Equipment items will be inserted here -->
-                                    </div>
-                                    
-                                    <div id="error" class="alert alert-danger" style="display: none;">
-                                        <h5>Error Loading Equipment</h5>
-                                        <p id="error-message"></p>
-                                        <button class="btn btn-outline-danger" onclick="loadEquipment()">Retry</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="container-xl my-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <ul class="nav nav-pills" id="dashboardTabs">
+        <li class="nav-item">
+          <button id="overview-tab" class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-overview" type="button"><i class="ti ti-layout-grid me-2"></i> Overview</button>
+        </li>
+        <li class="nav-item">
+          <button id="equipment-tab" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-equipment" type="button"><i class="ti ti-list-details me-2"></i> Equipment</button>
+        </li>
+      </ul>
+      
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JavaScript -->
-    <script>
-        // Global variables for equipment list
-        let allEquipment = [];
-        let filteredEquipment = [];
-        let isLoading = false;
+    <div class="tab-content pt-3" id="tabsContent">
+      <!-- Overview -->
+      <div class="tab-pane fade show active" id="tab-overview" role="tabpanel">
+        <div class="row g-3">
+          <div class="col-12">
+            <div class="card section-card">
+              <div class="card-body">
+                <!-- Primary KPI: FloorIQ Score with meter -->
+                <div class="fiq-hero">
+                  <div class="fiq-header">
+                    <div class="fiq-title">FloorIQ Score</div>
+                    <div class="fiq-value">{{ gym_iq }}</div>
+                  </div>
+                  <div class="fiq-meter">
+                    <div class="fiq-band fiq-poor" style="width:42.5%"></div>
+                    <div class="fiq-band fiq-below" style="width:5%"></div>
+                    <div class="fiq-band fiq-average" style="width:7.5%"></div>
+                    <div class="fiq-band fiq-above" style="width:10%"></div>
+                    <div class="fiq-band fiq-exceptional" style="width:35%"></div>
+                    <div id="fiq-pointer"></div>
+                  </div>
+                  <div class="fiq-legend"><span>Poor</span><span>Below Avg</span><span>Average</span><span>Above Avg</span><span>Exceptional</span></div>
+                  <div class="fiq-band-label"><span class="trend-indicator trend-stable" id="flooriq-band">{{ gym_band }}</span></div>
+                </div>
 
-        // Filter state
-        const filters = {
-            category: 'all',
-            sort: 'minutes-desc',
-            trend: 'all'
-        };
+    <!-- Carousel: Top 5 / Bottom 5 -->
+    <div id="iqCarousel" class="carousel slide mb-2" data-bs-ride="carousel">
+      <div class="carousel-indicators">
+        <button type="button" data-bs-target="#iqCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+        <button type="button" data-bs-target="#iqCarousel" data-bs-slide-to="1"></button>
+      </div>
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <div class="card section-card">
+            <div class="card-header"><h3 class="card-title text-success"><i class="ti ti-trending-up me-2"></i> Top Performers</h3></div>
+            <div class="card-body" id="carousel-top"></div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div class="card section-card">
+            <div class="card-header"><h3 class="card-title text-danger"><i class="ti ti-trending-down me-2"></i> Replacement Candidates</h3></div>
+            <div class="card-body" id="carousel-bottom"></div>
+          </div>
+        </div>
+      </div>
+                  <button class="carousel-control-prev" type="button" data-bs-target="#iqCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                  </button>
+                  <button class="carousel-control-next" type="button" data-bs-target="#iqCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        // Load summary data and populate rankings
-        async function loadSummaryData() {
-            try {
-                const response = await fetch('/api/summary');
-                const data = await response.json();
-                
-                if (data.success) {
-                    const stats = data.stats;
-                    
-                    // Update average minutes (already populated from server)
-                    document.getElementById('avg-minutes').textContent = stats.avg_minutes_per_machine;
-                    
-                    // Populate bottom performers (replacement candidates)
-                    let bottomHtml = '';
-                    stats.bottom_performers.forEach((item, index) => {
-                        bottomHtml += `
-                            <div class="d-flex justify-content-between align-items-center py-2 ${index < stats.bottom_performers.length - 1 ? 'border-bottom' : ''}">
-                                <div class="flex-grow-1">
-                                    <strong>${index + 1}. ${item.name}</strong>
-                                </div>
-                                <div class="text-end">
-                                    <span class="h6 mb-0">${item.total_minutes} min</span>
-                                    <span class="text-danger ms-2">${item.trend_text}</span>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    document.getElementById('bottom-performers').innerHTML = bottomHtml;
-                    
-                    // Populate top performers
-                    let topHtml = '';
-                    stats.top_performers.forEach((item, index) => {
-                        topHtml += `
-                            <div class="d-flex justify-content-between align-items-center py-2 ${index < stats.top_performers.length - 1 ? 'border-bottom' : ''}">
-                                <div class="flex-grow-1">
-                                    <strong>${index + 1}. ${item.name}</strong>
-                                </div>
-                                <div class="text-end">
-                                    <span class="h6 mb-0">${item.total_minutes} min</span>
-                                    <span class="text-success ms-2">${item.trend_text}</span>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    document.getElementById('top-performers').innerHTML = topHtml;
-                }
-            } catch (error) {
-                console.error('Error loading summary data:', error);
-            }
+      <!-- Equipment -->
+      <div class="tab-pane fade" id="tab-equipment" role="tabpanel">
+        <div class="card mb-3 section-card">
+          <div class="card-body py-3">
+            <div class="row g-3 align-items-center">
+              <div class="col-md-4">
+                <label class="form-label small text-muted mb-1" for="sort-select">SORT BY</label>
+                <select class="form-select form-select-sm" id="sort-select" name="sort-select">
+                  <option value="iq-desc">Score ↓</option>
+                  <option value="iq-asc">Score ↑</option>
+                  <option value="delta-desc">Biggest Increase</option>
+                  <option value="delta-asc">Biggest Decrease</option>
+                  <option value="name">Equipment Name</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <div class="form-label small text-muted mb-1" id="category-label">CATEGORY</div>
+                <div class="btn-group w-100" role="group" id="category-pills" aria-labelledby="category-label">
+                  <input type="radio" class="btn-check" name="category" id="cat-all" value="all" checked>
+                  <label class="btn btn-outline-primary btn-sm" for="cat-all">All</label>
+                  <input type="radio" class="btn-check" name="category" id="cat-cardio" value="Cardio">
+                  <label class="btn btn-outline-primary btn-sm" for="cat-cardio">Cardio</label>
+                  <input type="radio" class="btn-check" name="category" id="cat-strength" value="Strength">
+                  <label class="btn btn-outline-primary btn-sm" for="cat-strength">Strength</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-label small text-muted mb-1" id="movement-label">MOVEMENT</div>
+                <div class="btn-group w-100" role="group" id="movement-pills" aria-labelledby="movement-label">
+                  <input type="radio" class="btn-check" name="movement" id="mv-all" value="all" checked>
+                  <label class="btn btn-outline-primary btn-sm" for="mv-all">All</label>
+                  <input type="radio" class="btn-check" name="movement" id="mv-up" value="up">
+                  <label class="btn btn-outline-primary btn-sm" for="mv-up">↑ Up</label>
+                  <input type="radio" class="btn-check" name="movement" id="mv-down" value="down">
+                  <label class="btn btn-outline-primary btn-sm" for="mv-down">↓ Down</label>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-2"><div class="col-12"><small class="text-muted">Showing <span id="filtered-count">—</span> of <span id="total-equipment">—</span> equipment items</small></div></div>
+          </div>
+        </div>
+
+        <div class="card section-card">
+          <div class="card-body">
+            <div id="loading" class="text-center py-5">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="mt-3">Loading equipment data...</p>
+            </div>
+            <div id="equipment-container" style="display:none;"></div>
+            <div id="error" class="alert alert-danger" style="display:none;">
+              <h5>Error Loading Equipment</h5>
+              <p id="error-message"></p>
+              <button class="btn btn-outline-danger" onclick="loadEquipment()">Retry</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-4" style="background: var(--tblr-primary); box-shadow: 0 -1px 2px rgba(0,0,0,0.12)">
+    <div class="container-xl py-3 d-flex justify-content-center align-items-center text-white" style="opacity: 0.95;">
+      <div>© FloorIQ</div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+  <script>
+    let allEquipment = [];
+    let isLoading = false;
+    const filters = { category: 'all', movement: 'all', sort: 'iq-desc' };
+
+    function buildCard(item) {
+      const pts = (item.delta_iq === 0 ? '—' : (item.delta_iq > 0 ? `+${item.delta_iq}` : `${item.delta_iq}`));
+      const trend = (item.delta_iq === 0 ? 'stable' : (item.delta_iq > 0 ? 'up' : 'down'));
+      return `
+        <div class="equipment-item">
+          <div class="d-flex justify-content-between align-items-center">
+            <div style="flex:1 1 auto; min-width:0;">
+              <div class="equipment-name">${item.name}</div>
+              <!-- Details hidden for now -->
+            </div>
+            <div class="text-end card-right">
+              <div class="d-flex align-items-center justify-content-end"><span class="equipment-minutes">${item.iq}</span></div>
+              <div class="d-flex justify-content-end align-items-center mt-1">
+                <span class="trend-indicator trend-${trend}">${pts}</span>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    async function loadEquipment() {
+      if (isLoading) return; isLoading = true;
+      const loading = document.getElementById('loading');
+      const container = document.getElementById('equipment-container');
+      const error = document.getElementById('error');
+      loading.style.display = 'block'; container.style.display = 'none'; error.style.display = 'none';
+      try {
+        const r = await fetch('/api/equipment');
+        const j = await r.json();
+        if (!j.success) throw new Error(j.error || 'Failed to load equipment');
+        allEquipment = j.equipment || [];
+        document.getElementById('total-equipment').textContent = j.total_count;
+        applyFilters();
+      } catch (e) {
+        document.getElementById('error-message').textContent = e.message;
+        loading.style.display = 'none'; error.style.display = 'block';
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    function applyFilters() {
+      let list = allEquipment.slice();
+      if (filters.category !== 'all') list = list.filter(e => e.category === filters.category);
+      if (filters.movement !== 'all') list = list.filter(e => (filters.movement === 'up' ? e.delta_iq > 0 : e.delta_iq < 0));
+      list.sort((a,b) => {
+        switch (filters.sort) {
+          case 'iq-desc': return b.iq - a.iq;
+          case 'iq-asc': return a.iq - b.iq;
+          case 'delta-desc': return b.delta_iq - a.delta_iq;
+          case 'delta-asc': return a.delta_iq - b.delta_iq;
+          case 'name': return a.name.localeCompare(b.name);
+          default: return 0;
         }
+      });
+      renderList(list);
+    }
 
-        // Load equipment data for the equipment list tab
-        async function loadEquipment() {
-            console.log('🔧 loadEquipment() called!');
-            
-            if (isLoading) {
-                console.log('⚠️ Already loading, skipping...');
-                return;
-            }
-            
-            isLoading = true;
-            
-            const loading = document.getElementById('loading');
-            const container = document.getElementById('equipment-container');
-            const error = document.getElementById('error');
-            
-            if (!loading || !container || !error) {
-                console.error('❌ Required DOM elements not found');
-                return;
-            }
-            
-            // Show loading
-            loading.style.display = 'block';
-            container.style.display = 'none';
-            error.style.display = 'none';
-            
-            try {
-                console.log('📡 Fetching /api/equipment...');
-                const response = await fetch('/api/equipment');
-                const data = await response.json();
-                
-                if (data.success) {
-                    console.log('✅ Equipment data loaded:', data.equipment.length, 'items');
-                    
-                    // Store equipment data globally
-                    allEquipment = data.equipment;
-                    
-                    // Update filter summary
-                    const totalEquipmentSpan = document.getElementById('total-equipment');
-                    if (totalEquipmentSpan) {
-                        totalEquipmentSpan.textContent = data.total_count;
-                    }
-                    
-                    // Setup filter event listeners
-                    setupFilters();
-                    
-                    // Apply initial filters
-                    applyFilters();
-                } else {
-                    throw new Error(data.error || 'Failed to load equipment');
-                }
-            } catch (err) {
-                console.error('Error loading equipment:', err);
-                const errorMessageElement = document.getElementById('error-message');
-                if (errorMessageElement) {
-                    errorMessageElement.textContent = err.message;
-                }
-                loading.style.display = 'none';
-                error.style.display = 'block';
-            } finally {
-                isLoading = false;
-            }
+    function renderList(list) {
+      const container = document.getElementById('equipment-container');
+      const loading = document.getElementById('loading');
+      if (list.length === 0) {
+        container.innerHTML = '<div class="text-center py-4 text-muted">No equipment matches your filters.</div>';
+      } else {
+        container.innerHTML = list.map(buildCard).join('');
+      }
+      loading.style.display = 'none'; container.style.display = 'block';
+    }
+
+    function wireFilters() {
+      document.querySelectorAll('input[name="category"]').forEach(r => r.addEventListener('change', e => { filters.category = e.target.value; applyFilters(); }));
+      document.querySelectorAll('input[name="movement"]').forEach(r => r.addEventListener('change', e => { filters.movement = e.target.value; if (e.target.value === 'up') { filters.sort = 'delta-desc'; document.getElementById('sort-select').value = 'delta-desc'; } else if (e.target.value === 'down') { filters.sort = 'delta-asc'; document.getElementById('sort-select').value = 'delta-asc'; } else { filters.sort = 'iq-desc'; document.getElementById('sort-select').value = 'iq-desc'; } applyFilters(); }));
+      const sortSelect = document.getElementById('sort-select');
+      sortSelect.addEventListener('change', e => { filters.sort = e.target.value; applyFilters(); });
+    }
+
+    async function loadSummary() {
+      try {
+        const r = await fetch('/api/summary');
+        const j = await r.json();
+        if (!j.success) return;
+        const wl = document.getElementById('week-label');
+        if (wl) wl.textContent = j.stats.week_label;
+        // Populate top/bottom 5 by IQ
+        const sorted = allEquipment.slice().sort((a,b)=>b.iq-a.iq);
+        const top5 = sorted.slice(0,5).map(buildCard).join('');
+        const bot5 = sorted.slice(-5).reverse().map(buildCard).join('');
+        const ct = document.getElementById('carousel-top');
+        const cb = document.getElementById('carousel-bottom');
+        if (ct) ct.innerHTML = top5;
+        if (cb) cb.innerHTML = bot5;
+
+        // Color band for hero card
+        const band = (j.stats.gym_band || '').toLowerCase();
+        const bandEl = document.getElementById('flooriq-band');
+        if (bandEl) {
+          bandEl.classList.remove('trend-up','trend-stable','band-amber');
+          if (band.includes('below')) bandEl.classList.add('band-amber');
+          else if (band.includes('above')) bandEl.classList.add('trend-up');
+          else bandEl.classList.add('trend-stable');
         }
-
-        function setupFilters() {
-            // Category pills
-            document.querySelectorAll('input[name="category"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    filters.category = e.target.value;
-                    applyFilters();
-                });
-            });
-            
-            // Sort dropdown
-            const sortSelect = document.getElementById('sort-select');
-            if (sortSelect) {
-                sortSelect.addEventListener('change', (e) => {
-                    filters.sort = e.target.value;
-                    applyFilters();
-                });
-            }
-            
-            // Trend pills
-            document.querySelectorAll('input[name="trend"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    filters.trend = e.target.value;
-                    
-                    // Auto-update sort when trend filter changes
-                    const sortSelect = document.getElementById('sort-select');
-                    if (sortSelect) {
-                        if (e.target.value === 'up') {
-                            filters.sort = 'trend-desc';
-                            sortSelect.value = 'trend-desc';
-                        } else if (e.target.value === 'down') {
-                            filters.sort = 'trend-asc';
-                            sortSelect.value = 'trend-asc';
-                        } else if (e.target.value === 'all') {
-                            // Revert to default sort when "All" is selected
-                            filters.sort = 'minutes-desc';
-                            sortSelect.value = 'minutes-desc';
-                        }
-                    }
-                    
-                    applyFilters();
-                });
-            });
+        // Position meter pointer
+        const score = j.stats.gym_iq || 0;
+        const meter = document.querySelector('.fiq-meter');
+        const ptr = document.getElementById('fiq-pointer');
+        if (meter && ptr) {
+          const width = meter.clientWidth;
+          const x = Math.max(0, Math.min(width, Math.round((score/200) * width)));
+          ptr.style.left = `${x - 6}px`; // center triangle
         }
+      } catch (e) { console.error(e); }
+    }
 
-        function applyFilters() {
-            let filtered = [...allEquipment];
-            
-            // Apply category filter
-            if (filters.category !== 'all') {
-                filtered = filtered.filter(item => item.category === filters.category);
-            }
-            
-            // Apply trend filter
-            if (filters.trend !== 'all') {
-                filtered = filtered.filter(item => item.trend === filters.trend);
-            }
-            
-            // Apply sorting
-            filtered.sort((a, b) => {
-                switch(filters.sort) {
-                    case 'minutes-desc': return b.total_minutes - a.total_minutes;
-                    case 'minutes-asc': return a.total_minutes - b.total_minutes;
-                    case 'trend-desc': return b.weekly_change - a.weekly_change;
-                    case 'trend-asc': return a.weekly_change - b.weekly_change;
-                    case 'name': return a.name.localeCompare(b.name);
-                    default: return 0;
-                }
-            });
-            
-            filteredEquipment = filtered;
-            renderEquipment(filtered);
-            updateFilterSummary(filtered.length);
-        }
-
-        function updateFilterSummary(filteredCount) {
-            const filteredCountSpan = document.getElementById('filtered-count');
-            if (filteredCountSpan) {
-                filteredCountSpan.textContent = filteredCount;
-            }
-        }
-
-        function renderEquipment(equipment) {
-            console.log('🎨 Rendering equipment:', equipment.length, 'items');
-            
-            const container = document.getElementById('equipment-container');
-            const loading = document.getElementById('loading');
-            
-            if (!container || !loading) {
-                console.error('❌ Container or loading element not found!');
-                return;
-            }
-            
-            if (equipment.length === 0) {
-                container.innerHTML = '<div class="text-center py-4"><p class="text-muted mb-2">No equipment matches your filters.</p><p class="text-muted">Try adjusting your category or trend filters.</p></div>';
-            } else {
-                const html = equipment.map(item => `
-                    <div class="equipment-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="equipment-name">${item.name}</div>
-                                <div class="equipment-category">${item.category} Equipment</div>
-                            </div>
-                            <div class="text-end">
-                                <div class="d-flex align-items-center justify-content-end">
-                                    <span class="equipment-minutes">${item.total_minutes} min</span>
-                                    <span class="trend-indicator trend-${item.trend}">${item.trend_text}</span>
-                                </div>
-                                <div class="peak-hours mt-1">Peak: ${item.peak_hours}</div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-                
-                container.innerHTML = html;
-            }
-            
-            // Show container, hide loading
-            loading.style.display = 'none';
-            container.style.display = 'block';
-        }
-
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('FloorIQ Dashboard initialized');
-            
-            // Load summary data immediately for the Summary tab
-            loadSummaryData();
-            
-            // Load equipment when Equipment tab is clicked
-            document.getElementById('equipment-tab').addEventListener('click', function() {
-                if (allEquipment.length === 0) {
-                    loadEquipment();
-                }
-            });
-        });
-    </script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      wireFilters();
+      await loadEquipment();
+      await loadSummary();
+    });
+  </script>
 </body>
 </html>
